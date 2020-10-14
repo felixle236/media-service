@@ -1,5 +1,5 @@
 import { APPLICATION_SCHEMA } from '../../schemas/application/ApplicationSchema';
-import { Application } from '../../../../../web.core/domain/entities/Application/Application';
+import { Application } from '../../../../../web.core/domain/entities/application/Application';
 import { ApplicationDb } from '../../entities/application/ApplicationDb';
 import { BaseRepository } from '../base/BaseRepository';
 import { IApplicationRepository } from '../../../../../web.core/gateways/repositories/application/IApplicationRepository';

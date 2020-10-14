@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import * as uuid from 'uuid';
 import { Inject, Service } from 'typedi';
-import { Application } from '../../../../domain/entities/Application/Application';
+import { Application } from '../../../../domain/entities/application/Application';
 import { CreateApplicationCommand } from './CreateApplicationCommand';
 import { IApplicationRepository } from '../../../../gateways/repositories/application/IApplicationRepository';
 import { ICommandHandler } from '../../../../domain/common/usecase/interfaces/ICommandHandler';

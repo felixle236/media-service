@@ -1,4 +1,4 @@
-import { Application } from '../../../../domain/entities/Application/Application';
+import { Application } from '../../../../domain/entities/application/Application';
 
 export class FindApplicationResult {
     id: string;
