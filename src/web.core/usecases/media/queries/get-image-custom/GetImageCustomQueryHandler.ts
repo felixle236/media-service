@@ -1,11 +1,11 @@
 import * as sharp from 'sharp';
 import { Inject, Service } from 'typedi';
-import { API_CACHING_EXPIRE_IN } from '../../../../../configs/Configuration';
 import { GetImageCustomQuery } from './GetImageCustomQuery';
 import { IMediaRepository } from '../../../../gateways/repositories/media/IMediaRepository';
 import { IQueryHandler } from '../../../../domain/common/usecase/interfaces/IQueryHandler';
 import { IStorageService } from '../../../../gateways/services/IStorageService';
 import { ImageOptimizationVO } from '../../../../domain/entities/media/ImageOptimizationVO';
+import { MEDIA_CACHING_EXPIRE_IN } from '../../../../../configs/Configuration';
 import { Media } from '../../../../domain/entities/media/Media';
 import { MediaType } from '../../../../domain/enums/media/MediaType';
 import { MessageError } from '../../../../domain/common/exceptions/message/MessageError';
@@ -26,7 +26,7 @@ export class GetImageCustomQueryHandler implements IQueryHandler<GetImageCustomQ
         if (!param.ext)
             throw new SystemError(MessageError.PARAM_REQUIRED, 'ext');
 
-        const media = await this._mediaRepository.getByIdWithCache(param.id, API_CACHING_EXPIRE_IN);
+        const media = await this._mediaRepository.getByIdWithCache(param.id, MEDIA_CACHING_EXPIRE_IN);
         if (!media || media.type !== MediaType.IMAGE || media.extension !== param.ext.toLocaleLowerCase())
             throw new SystemError(MessageError.DATA_NOT_FOUND);
 

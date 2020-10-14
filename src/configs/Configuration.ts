@@ -13,7 +13,7 @@ export const PROJECT_NAME: string = process.env.PROJECT_NAME ?? '';
 export const PROTOTYPE: string = process.env.PROTOTYPE ?? 'http';
 export const DOMAIN: string = process.env.DOMAIN ?? 'localhost';
 
-export const API_CACHING_EXPIRE_IN: number = process.env.API_CACHING_EXPIRE_IN ? Number(process.env.API_CACHING_EXPIRE_IN) : 0;
+export const MEDIA_CACHING_EXPIRE_IN: number = process.env.MEDIA_CACHING_EXPIRE_IN ? Number(process.env.MEDIA_CACHING_EXPIRE_IN) : 0;
 
 // API SERVICE
 
