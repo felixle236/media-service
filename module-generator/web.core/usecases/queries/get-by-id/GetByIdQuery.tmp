@@ -1,0 +1,5 @@
+import { IQuery } from '../../../../domain/common/usecase/interfaces/IQuery';
+
+export class Get{PascalName}ByIdQuery implements IQuery {
+    id: string;
+}

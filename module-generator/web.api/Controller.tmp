@@ -1,0 +1,53 @@
+import { Body, Delete, Get, JsonController, Param, Params, Post, Put, QueryParams } from 'routing-controllers';
+import { Create{PascalName}Command } from '../../../web.core/usecases/{camelName}/commands/create-{camelName}/Create{PascalName}Command';
+import { Create{PascalName}CommandHandler } from '../../../web.core/usecases/{camelName}/commands/create-{camelName}/Create{PascalName}CommandHandler';
+import { Delete{PascalName}Command } from '../../../web.core/usecases/{camelName}/commands/delete-{camelName}/Delete{PascalName}Command';
+import { Delete{PascalName}CommandHandler } from '../../../web.core/usecases/{camelName}/commands/delete-{camelName}/Delete{PascalName}CommandHandler';
+import { Find{PascalName}Query } from '../../../web.core/usecases/{camelName}/queries/find-{camelName}/Find{PascalName}Query';
+import { Find{PascalName}QueryHandler } from '../../../web.core/usecases/{camelName}/queries/find-{camelName}/Find{PascalName}QueryHandler';
+import { Find{PascalName}Result } from '../../../web.core/usecases/{camelName}/queries/find-{camelName}/Find{PascalName}Result';
+import { Get{PascalName}ByIdQuery } from '../../../web.core/usecases/{camelName}/queries/get-{camelName}-by-id/Get{PascalName}ByIdQuery';
+import { Get{PascalName}ByIdQueryHandler } from '../../../web.core/usecases/{camelName}/queries/get-{camelName}-by-id/Get{PascalName}ByIdQueryHandler';
+import { Get{PascalName}ByIdResult } from '../../../web.core/usecases/{camelName}/queries/get-{camelName}-by-id/Get{PascalName}ByIdResult';
+import { PaginationResult } from '../../../web.core/domain/common/usecase/PaginationResult';
+import { Service } from 'typedi';
+import { Update{PascalName}Command } from '../../../web.core/usecases/{camelName}/commands/update-{camelName}/Update{PascalName}Command';
+import { Update{PascalName}CommandHandler } from '../../../web.core/usecases/{camelName}/commands/update-{camelName}/Update{PascalName}CommandHandler';
+
+@Service()
+@JsonController('/v1/{camelName}s')
+export class {PascalName}Controller {
+    constructor(
+        private readonly _find{PascalName}QueryHandler: Find{PascalName}QueryHandler,
+        private readonly _get{PascalName}ByIdQueryHandler: Get{PascalName}ByIdQueryHandler,
+        private readonly _create{PascalName}CommandHandler: Create{PascalName}CommandHandler,
+        private readonly _update{PascalName}CommandHandler: Update{PascalName}CommandHandler,
+        private readonly _delete{PascalName}CommandHandler: Delete{PascalName}CommandHandler
+    ) {}
+
+    @Get('/')
+    async find(@QueryParams() param: Find{PascalName}Query): Promise<PaginationResult<Find{PascalName}Result>> {
+        return await this._find{PascalName}QueryHandler.handle(param);
+    }
+
+    @Get('/:id')
+    async getById(@Params() param: Get{PascalName}ByIdQuery): Promise<Get{PascalName}ByIdResult> {
+        return await this._get{PascalName}ByIdQueryHandler.handle(param);
+    }
+
+    @Post('/')
+    async create(@Body() param: Create{PascalName}Command): Promise<string> {
+        return await this._create{PascalName}CommandHandler.handle(param);
+    }
+
+    @Put('/:id')
+    async update(@Param('id') id: string, @Body() param: Update{PascalName}Command): Promise<boolean> {
+        param.id = id;
+        return await this._update{PascalName}CommandHandler.handle(param);
+    }
+
+    @Delete('/:id')
+    async delete(@Params() param: Delete{PascalName}Command): Promise<boolean> {
+        return await this._delete{PascalName}CommandHandler.handle(param);
+    }
+}

@@ -1,0 +1,6 @@
+import { ICommand } from '../../../../domain/common/usecase/interfaces/ICommand';
+
+export class Update{PascalName}Command implements ICommand {
+    id: string;
+    name: string;
+}
