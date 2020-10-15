@@ -39,6 +39,8 @@ export class CreateApplicationCommandHandler implements ICommandHandler<CreateAp
             const policies = this._getPolicies(data.id);
             await this._storageService.createBucket(data.id, JSON.stringify(policies));
             await this._applicationRepository.clearCaching();
+        }, async error => {
+            throw error;
         });
         return data.id;
     }
