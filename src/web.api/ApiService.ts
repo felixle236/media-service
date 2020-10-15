@@ -3,19 +3,19 @@ import * as path from 'path';
 import { API_PORT, IS_DEVELOPMENT } from '../configs/Configuration';
 import { ApiAuthenticator } from './ApiAuthenticator';
 import { Container } from 'typedi';
-import { DocumentController } from './express-controllers/DocumentController';
 import { HttpServer } from '../web.infrastructure/servers/http/HttpServer';
-import { ImageController } from './express-controllers/ImageController';
 import { RoutingControllersOptions } from 'routing-controllers';
 import { Server } from 'http';
-import { VideoController } from './express-controllers/VideoController';
+import { StorageDocumentController } from './express-controllers/StorageDocumentController';
+import { StorageImageController } from './express-controllers/StorageImageController';
+import { StorageVideoController } from './express-controllers/StorageVideoController';
 
 export class ApiService {
     setup(callback?: any): Server {
         const authenticator = Container.get(ApiAuthenticator);
-        const documentController = Container.get(DocumentController);
-        const imageController = Container.get(ImageController);
-        const videoController = Container.get(VideoController);
+        const storageDocumentController = Container.get(StorageDocumentController);
+        const storageImageController = Container.get(StorageImageController);
+        const storageVideoController = Container.get(StorageVideoController);
 
         const options: RoutingControllersOptions = {
             cors: {
@@ -48,9 +48,9 @@ export class ApiService {
             res.status(200).end('ok');
         });
 
-        httpServer.app.use('/documents', documentController.getRouter());
-        httpServer.app.use('/images', imageController.getRouter());
-        httpServer.app.use('/videos', videoController.getRouter());
+        httpServer.app.use('/documents', storageDocumentController.getRouter());
+        httpServer.app.use('/images', storageImageController.getRouter());
+        httpServer.app.use('/videos', storageVideoController.getRouter());
 
         httpServer.app.use(compression({ filter: (req, res) => req.headers['x-no-compression'] ? false : compression.filter(req, res) }));
         return httpServer.start(API_PORT, callback);

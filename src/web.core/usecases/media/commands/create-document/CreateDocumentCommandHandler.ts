@@ -36,7 +36,7 @@ export class CreateDocumentCommandHandler implements ICommandHandler<CreateDocum
         data.extension = ext;
         data.size = param.file.size;
 
-        const hasSucceed = await this._storageService.upload(data.appId, data.urlPath, param.file.buffer);
+        const hasSucceed = await this._storageService.upload(data.appId, data.storageOriginalUrlPath, param.file.buffer);
         if (!hasSucceed)
             throw new SystemError(MessageError.PARAM_CANNOT_UPLOAD, 'file');
 

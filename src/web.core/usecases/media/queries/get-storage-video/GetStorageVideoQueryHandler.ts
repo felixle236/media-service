@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi';
-import { GetImageQuery } from './GetImageQuery';
+import { GetStorageVideoQuery } from './GetStorageVideoQuery';
 import { IMediaRepository } from '../../../../gateways/repositories/media/IMediaRepository';
 import { IQueryHandler } from '../../../../domain/common/usecase/interfaces/IQueryHandler';
 import { MEDIA_CACHING_EXPIRE_IN } from '../../../../../configs/Configuration';
@@ -8,11 +8,14 @@ import { MessageError } from '../../../../domain/common/exceptions/message/Messa
 import { SystemError } from '../../../../domain/common/exceptions/SystemError';
 
 @Service()
-export class GetImageQueryHandler implements IQueryHandler<GetImageQuery, string> {
+export class GetStorageVideoQueryHandler implements IQueryHandler<GetStorageVideoQuery, string> {
     @Inject('media.repository')
     private readonly _mediaRepository: IMediaRepository;
 
-    async handle(param: GetImageQuery): Promise<string> {
+    async handle(param: GetStorageVideoQuery): Promise<string> {
+        if (!param.appId)
+            throw new SystemError(MessageError.PARAM_REQUIRED, 'app id');
+
         if (!param.id)
             throw new SystemError(MessageError.PARAM_REQUIRED, 'id');
 
@@ -20,9 +23,9 @@ export class GetImageQueryHandler implements IQueryHandler<GetImageQuery, string
             throw new SystemError(MessageError.PARAM_REQUIRED, 'ext');
 
         const media = await this._mediaRepository.getByIdWithCache(param.id, MEDIA_CACHING_EXPIRE_IN);
-        if (!media || media.type !== MediaType.IMAGE || media.extension !== param.ext.toLocaleLowerCase())
+        if (!media || media.appId !== param.appId || media.type !== MediaType.VIDEO || media.extension !== param.ext.toLocaleLowerCase())
             throw new SystemError(MessageError.DATA_NOT_FOUND);
 
-        return media.url.storage;
+        return media.getVideoStorageUrl();
     }
 }

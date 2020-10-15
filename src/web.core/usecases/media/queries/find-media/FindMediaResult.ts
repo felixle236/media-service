@@ -1,10 +1,6 @@
 import { Media } from '../../../../domain/entities/media/Media';
 import { MediaType } from '../../../../domain/enums/media/MediaType';
 
-export class MediaUrl {
-    constructor(public media: string, public storage: string) {}
-}
-
 export class FindMediaResult {
     id: string;
     createdAt: Date;
@@ -14,8 +10,8 @@ export class FindMediaResult {
     name: string;
     extension: string;
     size: number;
-    url: MediaUrl;
-    optUrls?: MediaUrl[] | undefined;
+    urlPath: string;
+    storageUrl: string;
 
     constructor(data: Media) {
         this.id = data.id;
@@ -26,9 +22,18 @@ export class FindMediaResult {
         this.name = data.name;
         this.extension = data.extension;
         this.size = data.size;
-        this.url = new MediaUrl(data.url.media, data.url.storage);
 
-        if (data.type === MediaType.IMAGE)
-            this.optUrls = data.optimizations && data.optimizations.map(opt => data.getImageUrl(opt.width, opt.height));
+        if (data.type === MediaType.DOCUMENT) {
+            this.urlPath = data.getDocumentMediaUrlPath();
+            this.storageUrl = data.getDocumentStorageUrl();
+        }
+        else if (data.type === MediaType.IMAGE) {
+            this.urlPath = data.getImageMediaUrlPath();
+            this.storageUrl = data.getImageStorageUrl();
+        }
+        else if (data.type === MediaType.VIDEO) {
+            this.urlPath = data.getVideoMediaUrlPath();
+            this.storageUrl = data.getVideoStorageUrl();
+        }
     }
 }

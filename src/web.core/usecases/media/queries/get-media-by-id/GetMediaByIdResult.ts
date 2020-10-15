@@ -2,7 +2,7 @@ import { Media } from '../../../../domain/entities/media/Media';
 import { MediaType } from '../../../../domain/enums/media/MediaType';
 
 export class MediaUrl {
-    constructor(public media: string, public storage: string) {}
+    constructor(public urlPath: string, public storageUrl: string) {}
 }
 
 export class GetMediaByIdResult {
@@ -15,7 +15,8 @@ export class GetMediaByIdResult {
     name: string;
     extension: string;
     size: number;
-    url: MediaUrl;
+    urlPath: string;
+    storageUrl: string;
     optUrls?: MediaUrl[] | undefined;
 
     constructor(data: Media) {
@@ -28,9 +29,25 @@ export class GetMediaByIdResult {
         this.name = data.name;
         this.extension = data.extension;
         this.size = data.size;
-        this.url = new MediaUrl(data.url.media, data.url.storage);
 
-        if (data.type === MediaType.IMAGE)
-            this.optUrls = data.optimizations && data.optimizations.map(opt => data.getImageUrl(opt.width, opt.height));
+        if (data.type === MediaType.DOCUMENT) {
+            this.urlPath = data.getDocumentMediaUrlPath();
+            this.storageUrl = data.getDocumentStorageUrl();
+        }
+        else if (data.type === MediaType.IMAGE) {
+            this.urlPath = data.getImageMediaUrlPath();
+            this.storageUrl = data.getImageStorageUrl();
+
+            this.optUrls = data.optimizations && data.optimizations.map(opt => {
+                return new MediaUrl(
+                    data.getImageMediaUrlPath(opt.width, opt.height),
+                    data.getImageStorageUrl(opt.width, opt.height)
+                );
+            });
+        }
+        else if (data.type === MediaType.VIDEO) {
+            this.urlPath = data.getVideoMediaUrlPath();
+            this.storageUrl = data.getVideoStorageUrl();
+        }
     }
 }

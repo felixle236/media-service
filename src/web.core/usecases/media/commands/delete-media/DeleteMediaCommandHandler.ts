@@ -29,7 +29,7 @@ export class DeleteMediaCommandHandler implements ICommandHandler<DeleteMediaCom
         if (!hasSucceed)
             throw new SystemError(MessageError.DATA_CANNOT_SAVE);
 
-        hasSucceed = await this._storageService.delete(media.appId, media.urlPath);
+        hasSucceed = await this._storageService.delete(media.appId, media.storageOriginalUrlPath);
         if (!hasSucceed)
             throw new SystemError(MessageError.PARAM_CANNOT_UPLOAD, 'file');
 

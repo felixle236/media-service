@@ -1,5 +1,5 @@
 import * as validator from 'class-validator';
-import { ALLOW_DOCUMENT_FORMATS, ALLOW_DOCUMENT_SIZE, ALLOW_IMAGE_FORMATS, ALLOW_IMAGE_SIZE, ALLOW_VIDEO_FORMATS, ALLOW_VIDEO_SIZE, DOMAIN, PROTOTYPE, STORAGE_URL } from '../../../../configs/Configuration';
+import { ALLOW_DOCUMENT_FORMATS, ALLOW_DOCUMENT_SIZE, ALLOW_IMAGE_FORMATS, ALLOW_IMAGE_SIZE, ALLOW_VIDEO_FORMATS, ALLOW_VIDEO_SIZE, STORAGE_URL } from '../../../../configs/Configuration';
 import { Application } from '../application/Application';
 import { BaseEntity } from '../base/BaseEntity';
 import { IMedia } from '../../types/media/IMedia';
@@ -9,8 +9,8 @@ import { MediaType } from '../../enums/media/MediaType';
 import { MessageError } from '../../common/exceptions/message/MessageError';
 import { SystemError } from '../../common/exceptions/SystemError';
 
-export class MediaUrl {
-    constructor(public media: string, public storage: string) {}
+export class StorageUrl {
+    constructor(public urlPath: string, public url: string) {}
 }
 
 export class Media extends BaseEntity<IMedia> implements IMedia {
@@ -128,23 +128,13 @@ export class Media extends BaseEntity<IMedia> implements IMedia {
         this.data.size = val;
     }
 
-    get url(): MediaUrl {
+    get storageOriginalUrlPath(): string {
         if (this.type === MediaType.DOCUMENT)
-            return this.getDocumentUrl();
+            return this.getDocumentStorageUrlPath();
         else if (this.type === MediaType.IMAGE)
-            return this.getImageUrl();
+            return this.getImageStorageUrlPath();
         else if (this.type === MediaType.VIDEO)
-            return this.getVideoUrl();
-        return new MediaUrl('', '');
-    }
-
-    get urlPath(): string {
-        if (this.type === MediaType.DOCUMENT)
-            return this.getDocumentPath();
-        else if (this.type === MediaType.IMAGE)
-            return this.getImagePath();
-        else if (this.type === MediaType.VIDEO)
-            return this.getVideoPath();
+            return this.getVideoStorageUrlPath();
         return '';
     }
 
@@ -174,43 +164,66 @@ export class Media extends BaseEntity<IMedia> implements IMedia {
         this.data.optimizations.push(opt.toData());
     }
 
-    getDocumentUrl(): MediaUrl {
-        const path = this.getDocumentPath();
-        return new MediaUrl(
-            `${PROTOTYPE}://${DOMAIN}/${path}`,
-            STORAGE_URL + `/${this.appId}/` + path
-        );
+    /* Begin - Media url path */
+
+    // Prodive the document url path for the platforms to use.
+    getDocumentMediaUrlPath(): string {
+        return `/documents/${this.appId}/${this.id}.${this.extension}`;
     }
 
-    getImageUrl(width?: number, height?: number): MediaUrl {
-        const path = this.getImagePath(width, height);
-        return new MediaUrl(
-            `${PROTOTYPE}://${DOMAIN}/${path}`,
-            STORAGE_URL + `/${this.appId}/` + path
-        );
+    // Prodive the image url path for the platforms to use.
+    getImageMediaUrlPath(width?: number, height?: number): string {
+        if (width && height)
+            return `/images/${this.appId}/${this.id}_${width}x${height}.${this.extension}`;
+        return `/images/${this.appId}/${this.id}.${this.extension}`;
     }
 
-    getVideoUrl(): MediaUrl {
-        const path = this.getVideoPath();
-        return new MediaUrl(
-            `${PROTOTYPE}://${DOMAIN}/${path}`,
-            STORAGE_URL + `/${this.appId}/` + path
-        );
+    // Prodive the video url path for the platforms to use.
+    getVideoMediaUrlPath(): string {
+        return `/videos/${this.appId}/${this.id}.${this.extension}`;
     }
 
-    getDocumentPath(): string {
+    /* End - Media url path */
+
+    /* Begin - Reverse proxy */
+
+    // Use for reverse proxy when the platforms request the document file.
+    getDocumentStorageUrl(): string {
+        return STORAGE_URL + `/${this.appId}/` + this.getDocumentStorageUrlPath();
+    }
+
+    // Use for reverse proxy when the platforms request the image file.
+    getImageStorageUrl(width?: number, height?: number): string {
+        return STORAGE_URL + `/${this.appId}/` + this.getImageStorageUrlPath(width, height);
+    }
+
+    // Use for reverse proxy when the platforms request the video file.
+    getVideoStorageUrl(): string {
+        return STORAGE_URL + `/${this.appId}/` + this.getVideoStorageUrlPath();
+    }
+
+    /* End - Reverse proxy */
+
+    /* Begin - Storage service */
+
+    // Use for uploading the document to storage service like a name of storage object.
+    getDocumentStorageUrlPath(): string {
         return `documents/${this.id}.${this.extension}`;
     }
 
-    getImagePath(width?: number, height?: number): string {
+    // Use for uploading the image to storage service like a name of storage object.
+    getImageStorageUrlPath(width?: number, height?: number): string {
         if (width && height)
             return `images/${this.id}_${width}x${height}.${this.extension}`;
         return `images/${this.id}.${this.extension}`;
     }
 
-    getVideoPath(): string {
+    // Use for uploading the video to storage service like a name of storage object.
+    getVideoStorageUrlPath(): string {
         return `videos/${this.id}.${this.extension}`;
     }
+
+    /* End - Storage service */
 
     private _validateDocumentFormat(ext: string) {
         const formats = ALLOW_DOCUMENT_FORMATS;

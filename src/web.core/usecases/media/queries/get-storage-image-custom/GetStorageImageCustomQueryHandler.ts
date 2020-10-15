@@ -1,6 +1,6 @@
 import * as sharp from 'sharp';
 import { Inject, Service } from 'typedi';
-import { GetImageCustomQuery } from './GetImageCustomQuery';
+import { GetStorageImageCustomQuery } from './GetStorageImageCustomQuery';
 import { IMediaRepository } from '../../../../gateways/repositories/media/IMediaRepository';
 import { IQueryHandler } from '../../../../domain/common/usecase/interfaces/IQueryHandler';
 import { IStorageService } from '../../../../gateways/services/IStorageService';
@@ -12,14 +12,17 @@ import { MessageError } from '../../../../domain/common/exceptions/message/Messa
 import { SystemError } from '../../../../domain/common/exceptions/SystemError';
 
 @Service()
-export class GetImageCustomQueryHandler implements IQueryHandler<GetImageCustomQuery, string> {
+export class GetStorageImageCustomQueryHandler implements IQueryHandler<GetStorageImageCustomQuery, string> {
     @Inject('media.repository')
     private readonly _mediaRepository: IMediaRepository;
 
     @Inject('storage.service')
     private readonly _storageService: IStorageService;
 
-    async handle(param: GetImageCustomQuery): Promise<string> {
+    async handle(param: GetStorageImageCustomQuery): Promise<string> {
+        if (!param.appId)
+            throw new SystemError(MessageError.PARAM_REQUIRED, 'app id');
+
         if (!param.id)
             throw new SystemError(MessageError.PARAM_REQUIRED, 'id');
 
@@ -27,7 +30,7 @@ export class GetImageCustomQueryHandler implements IQueryHandler<GetImageCustomQ
             throw new SystemError(MessageError.PARAM_REQUIRED, 'ext');
 
         const media = await this._mediaRepository.getByIdWithCache(param.id, MEDIA_CACHING_EXPIRE_IN);
-        if (!media || media.type !== MediaType.IMAGE || media.extension !== param.ext.toLocaleLowerCase())
+        if (!media || media.appId !== param.appId || media.type !== MediaType.IMAGE || media.extension !== param.ext.toLocaleLowerCase())
             throw new SystemError(MessageError.DATA_NOT_FOUND);
 
         if (media.info) {
@@ -43,14 +46,14 @@ export class GetImageCustomQueryHandler implements IQueryHandler<GetImageCustomQ
 
             let opt = media.optimizations && media.optimizations.find(opt => opt.width === width && opt.height === height);
             if (opt)
-                return media.getImageUrl(opt.width, opt.height).storage;
+                return media.getImageStorageUrl(opt.width, opt.height);
             else {
-                const bufferMedia = await this._storageService.download(media.appId, media.urlPath);
+                const bufferMedia = await this._storageService.download(media.appId, media.getImageStorageUrlPath());
                 const buffer = await sharp(bufferMedia)
                     .resize(width, height)
                     .toBuffer();
 
-                let hasSucceed = await this._storageService.upload(media.appId, media.getImagePath(width, height), buffer);
+                let hasSucceed = await this._storageService.upload(media.appId, media.getImageStorageUrlPath(width, height), buffer);
                 if (!hasSucceed)
                     throw new SystemError(MessageError.PARAM_CANNOT_UPLOAD, 'file');
 
@@ -70,10 +73,10 @@ export class GetImageCustomQueryHandler implements IQueryHandler<GetImageCustomQ
                     throw new SystemError(MessageError.DATA_CANNOT_SAVE);
 
                 await this._mediaRepository.removeCaching(media.id);
-                return media.getImageUrl(width, height).storage;
+                return media.getImageStorageUrl(width, height);
             }
         }
 
-        return media.url.storage;
+        return media.getImageStorageUrl();
     }
 }

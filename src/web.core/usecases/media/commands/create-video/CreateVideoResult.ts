@@ -7,7 +7,7 @@ export class CreateVideoResult {
     name: string;
     extension: string;
     size: number;
-    url: string;
+    urlPath: string;
 
     constructor(data: Media) {
         this.id = data.id;
@@ -15,6 +15,6 @@ export class CreateVideoResult {
         this.name = data.name;
         this.extension = data.extension;
         this.size = data.size;
-        this.url = data.url.media;
+        this.urlPath = data.getVideoMediaUrlPath();
     }
 }
