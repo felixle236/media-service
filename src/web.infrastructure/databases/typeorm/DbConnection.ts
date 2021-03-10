@@ -45,6 +45,7 @@ export class DbConnection implements IDbConnection {
         if (err) {
             if (rollback)
                 await rollback(err);
+            throw err;
         }
         else if (done)
             await done();

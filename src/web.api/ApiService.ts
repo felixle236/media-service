@@ -17,7 +17,7 @@ export class ApiService {
             cors: {
                 origin: '*',
                 methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-                allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization'],
+                allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization', 'X-Admin-Secret-Key', 'X-App-Id', 'X-Api-Key', 'X-User-Id'],
                 maxAge: 3600,
                 preflightContinue: true,
                 optionsSuccessStatus: 204
